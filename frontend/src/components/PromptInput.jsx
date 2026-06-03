@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const EXAMPLE_PROMPTS = [
   'Build a CRM with login, contacts, dashboard, role-based access, and premium plan with payments.',
@@ -10,9 +10,54 @@ const EXAMPLE_PROMPTS = [
 
 export default function PromptInput({ onCompile, isCompiling }) {
   const [prompt, setPrompt] = useState('')
+  const [isRecording, setIsRecording] = useState(false)
+  const recognitionRef = useRef(null)
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false; // Only get final results to avoid weird overlapping state updates
+      
+      recognition.onstart = () => setIsRecording(true);
+      
+      recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            const transcript = event.results[i][0].transcript;
+            setPrompt((prev) => {
+              const spacer = prev && !prev.endsWith(' ') ? ' ' : '';
+              return prev + spacer + transcript;
+            });
+          }
+        }
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        setIsRecording(false);
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+  }, []);
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      recognitionRef.current?.stop();
+    } else {
+      recognitionRef.current?.start();
+    }
+  };
 
   const handleSubmit = () => {
     if (prompt.trim() && !isCompiling) {
+      if (isRecording) recognitionRef.current?.stop();
       onCompile(prompt.trim())
     }
   }
@@ -69,6 +114,18 @@ export default function PromptInput({ onCompile, isCompiling }) {
               {isCompiling ? 'Compiling...' : '⚡ Compile Application'}
             </span>
           </button>
+          
+          {recognitionRef.current && (
+            <button
+              className={`btn btn-icon ${isRecording ? 'btn-record active' : 'btn-ghost'}`}
+              onClick={toggleRecording}
+              disabled={isCompiling}
+              title={isRecording ? 'Stop Recording' : 'Start Voice Input'}
+            >
+              🎤
+            </button>
+          )}
+
           {prompt && (
             <button
               className="btn btn-ghost btn-icon"
