@@ -126,11 +126,6 @@ function App() {
 
   return (
     <div className="app">
-      <div className="animated-bg">
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-      </div>
       <header className="app-header">
         <div className="app-logo">
           <div className="app-logo-icon">⚡</div>

@@ -2,48 +2,48 @@
 
 /* ===== Design System Tokens ===== */
 :root {
-  /* Colors - Deep Space Theme */
-  --color-bg-primary: #06080f;
-  --color-bg-secondary: #0c1021;
-  --color-bg-tertiary: #121830;
-  --color-bg-elevated: #1a2040;
-  --color-bg-glass: rgba(18, 24, 48, 0.7);
-  --color-bg-glass-hover: rgba(26, 32, 64, 0.85);
-  --color-bg-glass-active: rgba(30, 40, 72, 0.9);
+  /* Colors - Apple Minimalist Theme */
+  --color-bg-primary: #f5f5f7;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f2f2f2;
+  --color-bg-elevated: #ffffff;
+  --color-bg-glass: rgba(255, 255, 255, 0.7);
+  --color-bg-glass-hover: rgba(255, 255, 255, 0.85);
+  --color-bg-glass-active: rgba(245, 245, 247, 0.9);
   
   /* Accent Colors */
-  --color-primary: #6c5ce7;
-  --color-primary-light: #a29bfe;
-  --color-primary-dark: #4c3db5;
-  --color-primary-glow: rgba(108, 92, 231, 0.3);
+  --color-primary: #0071e3;
+  --color-primary-light: #4c9bee;
+  --color-primary-dark: #005bb5;
+  --color-primary-glow: rgba(0, 113, 227, 0.15);
   
-  --color-secondary: #00cec9;
-  --color-secondary-light: #55efc4;
-  --color-secondary-dark: #00a89e;
+  --color-secondary: #0071e3;
+  --color-secondary-light: #4c9bee;
+  --color-secondary-dark: #005bb5;
   
-  --color-accent: #fd79a8;
-  --color-accent-light: #fdcb6e;
+  --color-accent: #ff3b30;
+  --color-accent-light: #ff6961;
   
   /* Status Colors */
-  --color-success: #00d2a0;
-  --color-success-bg: rgba(0, 210, 160, 0.1);
-  --color-warning: #fdcb6e;
-  --color-warning-bg: rgba(253, 203, 110, 0.1);
-  --color-error: #ff6b6b;
-  --color-error-bg: rgba(255, 107, 107, 0.1);
-  --color-info: #74b9ff;
-  --color-info-bg: rgba(116, 185, 255, 0.1);
+  --color-success: #34c759;
+  --color-success-bg: rgba(52, 199, 89, 0.1);
+  --color-warning: #ff9f0a;
+  --color-warning-bg: rgba(255, 159, 10, 0.1);
+  --color-error: #ff3b30;
+  --color-error-bg: rgba(255, 59, 48, 0.1);
+  --color-info: #0071e3;
+  --color-info-bg: rgba(0, 113, 227, 0.1);
   
   /* Text Colors */
-  --color-text-primary: #f0f1f7;
-  --color-text-secondary: #8892b0;
-  --color-text-tertiary: #5a6380;
-  --color-text-inverse: #06080f;
+  --color-text-primary: #1d1d1f;
+  --color-text-secondary: #86868b;
+  --color-text-tertiary: #a1a1a6;
+  --color-text-inverse: #ffffff;
   
   /* Border */
-  --color-border: rgba(136, 146, 176, 0.15);
-  --color-border-hover: rgba(136, 146, 176, 0.3);
-  --color-border-active: rgba(108, 92, 231, 0.5);
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-hover: rgba(0, 0, 0, 0.15);
+  --color-border-active: rgba(0, 113, 227, 0.5);
   
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -120,56 +120,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Animated background Container */
-.animated-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background-color: var(--color-bg-primary);
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.5;
-  animation: float 20s infinite ease-in-out alternate;
-}
-
-.orb-1 {
-  width: 600px;
-  height: 600px;
-  background: rgba(108, 92, 231, 0.4);
-  top: -100px;
-  left: -100px;
-}
-
-.orb-2 {
-  width: 500px;
-  height: 500px;
-  background: rgba(0, 206, 201, 0.3);
-  bottom: -50px;
-  right: -50px;
-  animation-delay: -5s;
-}
-
-.orb-3 {
-  width: 700px;
-  height: 700px;
-  background: rgba(253, 121, 168, 0.2);
-  top: 40%;
-  left: 40%;
-  animation-delay: -10s;
-}
-
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(50px, -50px) scale(1.1); }
-  66% { transform: translate(-30px, 30px) scale(0.9); }
-  100% { transform: translate(0, 0) scale(1); }
-}
 
 #root {
   position: relative;
@@ -214,10 +164,10 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-8);
-  background: rgba(18, 24, 48, 0.4);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
@@ -246,10 +196,7 @@ a:hover {
 .app-logo-text {
   font-size: var(--text-xl);
   font-weight: 700;
-  background: linear-gradient(135deg, var(--color-text-primary), var(--color-primary-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-primary);
 }
 
 .app-logo-badge {
@@ -287,22 +234,17 @@ a:hover {
   }
 }
 
-/* ===== Glass Card ===== */
+/* ===== Apple Card ===== */
 .glass-card {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.04);
   transition: all var(--transition-base);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 15px rgba(0,0,0,0.03), 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .glass-card-header {
@@ -363,13 +305,13 @@ a:hover {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  background: var(--color-primary);
   color: white;
-  box-shadow: var(--shadow-glow-sm);
+  border-radius: var(--radius-full);
 }
 
 .btn-primary:hover {
-  box-shadow: var(--shadow-glow);
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 
