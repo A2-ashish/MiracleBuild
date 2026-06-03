@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+*.env
+
+# Build outputs
+dist/
+build/
+*.egg
+venv/
+backend/venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Evaluation results (keep structure, ignore large results)
+evaluation/results/*.json
+
+# Vite
+frontend/.vite/

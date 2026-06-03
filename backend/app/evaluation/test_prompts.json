@@ -1,0 +1,142 @@
+[
+  {
+    "id": "real_01",
+    "prompt": "Build a project management tool like Jira with kanban boards, sprint planning, backlog management, team members, and reporting dashboards",
+    "category": "real",
+    "expected_entities_min": 5,
+    "description": "Full-featured project management / issue tracking SaaS"
+  },
+  {
+    "id": "real_02",
+    "prompt": "Create an e-commerce platform for handmade crafts with seller shops, product listings, shopping cart, checkout with Stripe, order tracking, reviews, and wishlists",
+    "category": "real",
+    "expected_entities_min": 6,
+    "description": "Multi-vendor craft marketplace with payments"
+  },
+  {
+    "id": "real_03",
+    "prompt": "Build a patient management system for a small clinic with appointment scheduling, patient records, prescriptions, doctor profiles, medical history, and billing",
+    "category": "real",
+    "expected_entities_min": 5,
+    "description": "Healthcare clinic management system"
+  },
+  {
+    "id": "real_04",
+    "prompt": "Create an online learning platform with courses, video lessons, quizzes, student progress tracking, certificates, instructor dashboard, and discussion forums",
+    "category": "real",
+    "expected_entities_min": 6,
+    "description": "LMS / online education platform"
+  },
+  {
+    "id": "real_05",
+    "prompt": "Build a CRM for a real estate agency with property listings, client contacts, viewing appointments, deal pipeline, agent assignments, and commission tracking",
+    "category": "real",
+    "expected_entities_min": 5,
+    "description": "Real estate CRM with deal tracking"
+  },
+  {
+    "id": "real_06",
+    "prompt": "Create a restaurant management system with menu management, table reservations, online ordering, kitchen display, inventory tracking, and staff scheduling",
+    "category": "real",
+    "expected_entities_min": 6,
+    "description": "Restaurant operations management"
+  },
+  {
+    "id": "real_07",
+    "prompt": "Build a SaaS analytics dashboard that tracks website visitors, page views, conversion funnels, A/B test results, and custom events with team workspaces",
+    "category": "real",
+    "expected_entities_min": 5,
+    "description": "Web analytics SaaS platform"
+  },
+  {
+    "id": "real_08",
+    "prompt": "Create a freelancer marketplace where clients post jobs, freelancers submit proposals, manage contracts, track time, submit invoices, and leave reviews",
+    "category": "real",
+    "expected_entities_min": 6,
+    "description": "Freelance marketplace like Upwork"
+  },
+  {
+    "id": "real_09",
+    "prompt": "Build an event management platform with event creation, ticket sales, attendee registration, check-in system, speaker management, and post-event surveys",
+    "category": "real",
+    "expected_entities_min": 5,
+    "description": "Event management and ticketing platform"
+  },
+  {
+    "id": "real_10",
+    "prompt": "Create a fleet management system for a logistics company with vehicles, drivers, routes, deliveries, fuel tracking, maintenance schedules, and GPS tracking",
+    "category": "real",
+    "expected_entities_min": 5,
+    "description": "Logistics fleet management system"
+  },
+  {
+    "id": "edge_01",
+    "prompt": "app",
+    "category": "edge",
+    "expected_entities_min": 1,
+    "description": "Single word — extremely vague prompt"
+  },
+  {
+    "id": "edge_02",
+    "prompt": "Build me something cool",
+    "category": "edge",
+    "expected_entities_min": 1,
+    "description": "Vague / non-specific request"
+  },
+  {
+    "id": "edge_03",
+    "prompt": "I need a TODO list app but also an e-commerce store but also a social network with dating features and a blockchain-based voting system",
+    "category": "edge",
+    "expected_entities_min": 3,
+    "description": "Conflicting / overloaded requirements"
+  },
+  {
+    "id": "edge_04",
+    "prompt": "Create an app with no database, no users, no authentication, but with admin panels and user management and role-based access control",
+    "category": "edge",
+    "expected_entities_min": 1,
+    "description": "Internally contradictory requirements"
+  },
+  {
+    "id": "edge_05",
+    "prompt": "Build a system that manages inventory for 10 million SKUs with real-time sync across 500 warehouses, sub-millisecond latency, and zero downtime deployments with canary releases",
+    "category": "edge",
+    "expected_entities_min": 3,
+    "description": "Extreme scale / unrealistic constraints"
+  },
+  {
+    "id": "edge_06",
+    "prompt": "Make a clone of Facebook + Twitter + LinkedIn + TikTok + Spotify combined into one super app with AI recommendations",
+    "category": "edge",
+    "expected_entities_min": 5,
+    "description": "Absurdly large scope"
+  },
+  {
+    "id": "edge_07",
+    "prompt": "库存管理系统 with English API but Chinese UI, supporting right-to-left Arabic layout and Japanese date formats",
+    "category": "edge",
+    "expected_entities_min": 2,
+    "description": "Multi-language / mixed language prompt"
+  },
+  {
+    "id": "edge_08",
+    "prompt": "Build a free premium enterprise app with payments but no payments, open source but proprietary, cloud native but on-premise only",
+    "category": "edge",
+    "expected_entities_min": 1,
+    "description": "Maximum contradiction prompt"
+  },
+  {
+    "id": "edge_09",
+    "prompt": "A B C D E F G",
+    "category": "edge",
+    "expected_entities_min": 1,
+    "description": "Nonsensical input"
+  },
+  {
+    "id": "edge_10",
+    "prompt": "Build a simple blog with posts and comments. Posts have title, body, author, published date, and tags. Comments have text, author name, and email. Authors can be admin or writer. Admins manage everything, writers can only manage their own posts.",
+    "category": "edge",
+    "expected_entities_min": 3,
+    "description": "Well-specified simple app (positive edge case)"
+  }
+]
