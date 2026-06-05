@@ -99,7 +99,6 @@ class SchemaGenerator:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=DB_SCHEMA_SYSTEM,
-            response_schema=DatabaseSchema,
         )
         result, errors = parse_into_model(raw, DatabaseSchema)
         if result is None:
@@ -117,7 +116,6 @@ class SchemaGenerator:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=API_SCHEMA_SYSTEM,
-            response_schema=APISchema,
         )
         result, errors = parse_into_model(raw, APISchema)
         if result is None:
@@ -135,7 +133,6 @@ class SchemaGenerator:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=UI_SCHEMA_SYSTEM,
-            response_schema=UISchema,
         )
         result, errors = parse_into_model(raw, UISchema)
         if result is None:
@@ -151,7 +148,6 @@ class SchemaGenerator:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=AUTH_SCHEMA_SYSTEM,
-            response_schema=AuthSchema,
         )
         result, errors = parse_into_model(raw, AuthSchema)
         if result is None:
@@ -169,7 +165,6 @@ class SchemaGenerator:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=BUSINESS_LOGIC_SYSTEM,
-            response_schema=BusinessLogicSchema,
         )
         result, errors = parse_into_model(raw, BusinessLogicSchema)
         if result is None:
