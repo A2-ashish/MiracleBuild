@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
 
 from .database import DatabaseSchema
 from .api import APISchema
@@ -20,7 +19,7 @@ class AppMetadata(BaseModel):
     version: str = "1.0.0"
     domain: str = ""
     generated_at: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat()
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
     generator_version: str = "1.0.0"
 
@@ -73,7 +72,7 @@ class CompilationResult(BaseModel):
     """Final output of the compiler pipeline."""
 
     success: bool
-    config: Optional[AppConfig] = None
+    config: AppConfig | None = None
     validation_report: ValidationReport
     metrics: CompilationMetrics
     assumptions: list[str] = []

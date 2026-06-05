@@ -105,7 +105,7 @@ class ValidationEngine:
             f"{'all checks pass' if is_valid else f'{len(final_failures)} still failing'}"
         )
 
-        return config if is_valid else config, report
+        return config if is_valid else None, report
 
     # ------------------------------------------------------------------
     # Internal helpers

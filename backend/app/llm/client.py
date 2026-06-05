@@ -121,7 +121,7 @@ class LLMClient:
                     logger.warning("Quota exhausted for current key.")
                     if len(self.api_keys) > 1:
                         self._rotate_key()
-                        # Retry immediately without delay when rotating
+                        await asyncio.sleep(0.5)  # Brief pause to avoid hammering
                         continue
                         
                 delay = _BASE_DELAY_S * (2 ** attempt)

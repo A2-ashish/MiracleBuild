@@ -32,6 +32,19 @@ async def compile_app_stream(prompt: str, model: str = None, request: Request = 
     Uses Server-Sent Events (SSE) to stream progress via GET request (for EventSource).
     """
     async def sse_generator():
+        queue: asyncio.Queue = asyncio.Queue()
+
+        async def stage_callback(stage_name: str, status: str, data: dict):
+            """Regular async function that pushes events into the queue."""
+            event_data = {
+                "type": "stage_update",
+                "stage": stage_name,
+                "status": status,
+                "duration_ms": data.get("duration_ms"),
+                "tokens": data.get("tokens"),
+            }
+            await queue.put(event_data)
+
         # Setup the orchestrator
         orchestrator = CompilerOrchestrator(
             api_keys=config.api_keys,
@@ -39,26 +52,30 @@ async def compile_app_stream(prompt: str, model: str = None, request: Request = 
             max_repair_cycles=config.MAX_REPAIR_CYCLES,
         )
 
-        async def stage_callback(stage_name: str, status: str, data: dict):
-            event_data = {
-                "type": "stage_update" if status in ["started", "running", "completed", "error"] else status,
-                "stage": stage_name,
-                "status": status,
-                "duration_ms": data.get("duration_ms"),
-                "tokens": data.get("tokens"),
-            }
-            yield f"data: {json.dumps(event_data)}\n\n"
-            await asyncio.sleep(0)
-            
-        try:
-            yield f"data: {json.dumps({'type': 'init', 'status': 'connected'})}\n\n"
-            
-            result = await orchestrator.compile(prompt, callback=stage_callback)
-            
-            yield f"data: {json.dumps({'type': 'complete', 'status': 'success', 'result': result.model_dump()})}\n\n"
-        except Exception as e:
-            logger.exception("Compilation failed")
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        async def run_pipeline():
+            try:
+                result = await orchestrator.compile(prompt, callback=stage_callback)
+                await queue.put({"type": "complete", "status": "success", "result": result.model_dump()})
+            except Exception as e:
+                logger.exception("Compilation failed")
+                await queue.put({"type": "error", "message": str(e)})
+            finally:
+                await queue.put(None)  # Sentinel to stop the generator
+
+        # Start the pipeline in the background
+        task = asyncio.create_task(run_pipeline())
+
+        # Send init event
+        yield f"data: {json.dumps({'type': 'init', 'status': 'connected'})}\n\n"
+
+        # Drain the queue and yield SSE events until sentinel
+        while True:
+            event = await queue.get()
+            if event is None:
+                break
+            yield f"data: {json.dumps(event)}\n\n"
+
+        await task  # Ensure the task is fully done
 
     return StreamingResponse(sse_generator(), media_type="text/event-stream")
 
