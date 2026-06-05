@@ -82,6 +82,7 @@ class IntentExtractor:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=INTENT_EXTRACTION_SYSTEM,
+            response_schema=IntentResult,
         )
 
         result, errors = parse_into_model(raw, IntentResult)

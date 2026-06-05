@@ -86,7 +86,19 @@ class LLMClient:
 
         if response_schema is not None:
             config.response_mime_type = "application/json"
-            config.response_schema = response_schema
+            # Instead of passing response_schema to the SDK, which crashes on complex nested Enums,
+            # we dump the Pydantic schema and inject it into the system instruction.
+            import json
+            schema_json = response_schema.model_json_schema()
+            schema_str = json.dumps(schema_json, indent=2)
+            
+            base_instruction = system_instruction or ""
+            new_instruction = (
+                f"{base_instruction}\n\n"
+                "IMPORTANT: You MUST return a valid JSON object that adheres exactly to the following JSON Schema:\n"
+                f"{schema_str}"
+            ).strip()
+            config.system_instruction = new_instruction
 
         last_exc: Exception | None = None
         max_attempts = max(_MAX_RETRIES, len(self.api_keys) + 1)

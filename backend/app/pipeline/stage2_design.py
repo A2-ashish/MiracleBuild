@@ -46,6 +46,7 @@ class SystemDesigner:
         raw = await llm.generate(
             prompt=user_msg,
             system_instruction=SYSTEM_DESIGN_SYSTEM,
+            response_schema=SystemDesign,
         )
 
         result, errors = parse_into_model(raw, SystemDesign)
