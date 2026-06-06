@@ -201,7 +201,19 @@ class CompilerOrchestrator:
         tokens_before = llm.total_input_tokens + llm.total_output_tokens
         t0 = time.perf_counter()
 
-        result = await coro_factory()
+        max_attempts = 3
+        last_exc = None
+        result = None
+
+        for attempt in range(max_attempts):
+            try:
+                result = await coro_factory()
+                break
+            except Exception as exc:
+                last_exc = exc
+                logger.warning(f"Stage {name} failed on attempt {attempt + 1}/{max_attempts}: {exc}")
+                if attempt == max_attempts - 1:
+                    raise exc
 
         elapsed_ms = (time.perf_counter() - t0) * 1000
         tokens_after = llm.total_input_tokens + llm.total_output_tokens

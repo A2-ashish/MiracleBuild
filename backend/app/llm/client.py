@@ -82,10 +82,10 @@ class LLMClient:
         config = types.GenerateContentConfig(
             temperature=self.temperature,
             system_instruction=system_instruction if system_instruction else None,
+            response_mime_type="application/json"
         )
 
         if response_schema is not None:
-            config.response_mime_type = "application/json"
             # Instead of passing response_schema to the SDK, which crashes on complex nested Enums,
             # we dump the Pydantic schema and inject it into the system instruction.
             import json
