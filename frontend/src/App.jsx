@@ -22,19 +22,35 @@ function App() {
   const [result, setResult] = useState(null)
   const [isCompiling, setIsCompiling] = useState(false)
   const [error, setError] = useState(null)
+  const [errorDetails, setErrorDetails] = useState(null)
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro')
   const [activeOutputTab, setActiveOutputTab] = useState('pipeline')
+  const [lastPrompt, setLastPrompt] = useState('')
 
   const updateStage = useCallback((stageId, updates) => {
     setStages(prev => prev.map(s => s.id === stageId ? { ...s, ...updates } : s))
   }, [])
 
+  // Map backend stage names to frontend stage IDs
+  const mapStageName = useCallback((backendName) => {
+    const STAGE_NAME_MAP = {
+      'intent_extraction': 'intent',
+      'system_design': 'design',
+      'schema_generation': 'schemas',
+      'refinement': 'refinement',
+      'validation': 'validation',
+    }
+    return STAGE_NAME_MAP[backendName] || backendName
+  }, [])
+
   const handleCompile = useCallback(async (prompt) => {
     setIsCompiling(true)
     setError(null)
+    setErrorDetails(null)
     setResult(null)
     setStages(INITIAL_STAGES)
     setActiveOutputTab('pipeline')
+    setLastPrompt(prompt)
 
     try {
       // Use SSE for streaming stage updates
@@ -46,18 +62,36 @@ function App() {
           const data = JSON.parse(event.data)
 
           if (data.type === 'stage_update') {
-            updateStage(data.stage, {
+            const stageUpdate = {
               status: data.status,
               duration: data.duration_ms,
               tokens: data.tokens,
-            })
+            }
+            // Attach error details to the specific stage that failed
+            if (data.status === 'error' && data.error_message) {
+              stageUpdate.errorMessage = data.error_message
+              stageUpdate.errorSuggestion = data.error_suggestion
+              stageUpdate.errorCode = data.error_code
+            }
+            updateStage(mapStageName(data.stage), stageUpdate)
           } else if (data.type === 'complete') {
             setResult(data.result)
             setIsCompiling(false)
             setActiveOutputTab('schemas')
             eventSource.close()
           } else if (data.type === 'error') {
-            setError(data.message)
+            setError(data.message || 'Compilation failed')
+            setErrorDetails({
+              code: data.error_code,
+              message: data.message,
+              suggestion: data.error_suggestion,
+              failedStage: data.failed_stage,
+              retryable: data.retryable,
+              errors: data.errors,
+            })
+            if (data.result) {
+              setResult(data.result)
+            }
             setIsCompiling(false)
             eventSource.close()
           }
@@ -75,7 +109,7 @@ function App() {
     } catch (err) {
       fallbackCompile(prompt)
     }
-  }, [selectedModel, updateStage])
+  }, [selectedModel, updateStage, mapStageName])
 
   const fallbackCompile = async (prompt) => {
     try {
@@ -100,14 +134,45 @@ function App() {
 
       const data = await response.json()
 
+      // Backend uses different stage names than frontend IDs
+      const stageToBackend = {
+        'intent': 'intent_extraction',
+        'design': 'system_design',
+        'schemas': 'schema_generation',
+        'refinement': 'refinement',
+        'validation': 'validation',
+      }
+
       // Update all stages based on result
       for (const stage of stageOrder) {
-        const duration = data.metrics?.stage_durations?.[stage]
-        const tokens = data.metrics?.tokens_per_stage?.[stage]
-        updateStage(stage, {
-          status: data.success ? 'completed' : 'error',
-          duration,
-          tokens,
+        const backendName = stageToBackend[stage] || stage
+        const duration = data.metrics?.stage_durations?.[backendName] || data.metrics?.stage_durations?.[stage]
+        const tokens = data.metrics?.tokens_per_stage?.[backendName] || data.metrics?.tokens_per_stage?.[stage]
+
+        // If this is the failed stage, mark it as error; previous stages as completed
+        const failedBackendStage = data.failed_stage
+        const failedFrontendStage = Object.entries(stageToBackend).find(([, v]) => v === failedBackendStage)?.[0]
+        let status = data.success ? 'completed' : 'error'
+        if (!data.success && failedFrontendStage) {
+          const stageIdx = stageOrder.indexOf(stage)
+          const failedIdx = stageOrder.indexOf(failedFrontendStage)
+          if (stageIdx < failedIdx) status = 'completed'
+          else if (stageIdx > failedIdx) status = 'pending'
+          else status = 'error'
+        }
+
+        updateStage(stage, { status, duration, tokens })
+      }
+
+      if (!data.success && data.error_message) {
+        setError(data.error_message)
+        setErrorDetails({
+          code: data.error_code,
+          message: data.error_message,
+          suggestion: data.error_suggestion,
+          failedStage: data.failed_stage,
+          retryable: data.retryable,
+          errors: data.errors,
         })
       }
 
@@ -115,6 +180,12 @@ function App() {
       setActiveOutputTab('schemas')
     } catch (err) {
       setError(err.message)
+      setErrorDetails({
+        code: 'NETWORK_ERROR',
+        message: err.message,
+        suggestion: 'Check your network connection and ensure the backend server is running.',
+        retryable: true,
+      })
       setStages(prev => prev.map(s => ({
         ...s,
         status: s.status === 'running' ? 'error' : s.status
@@ -186,9 +257,38 @@ function App() {
         {/* Right Panel — Output */}
         <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
           {error && (
-            <div className="glass-card" style={{ marginBottom: 'var(--space-5)', borderColor: 'var(--color-error)' }}>
-              <div className="glass-card-body" style={{ color: 'var(--color-error)' }}>
-                <strong>⚠ Compilation Error:</strong> {error}
+            <div className="glass-card error-card" style={{ marginBottom: 'var(--space-5)', borderColor: 'var(--color-error)' }}>
+              <div className="glass-card-body">
+                <div className="error-header">
+                  <div className="error-icon">⚠</div>
+                  <div className="error-title-section">
+                    <strong className="error-title">Compilation Failed</strong>
+                    {errorDetails?.code && (
+                      <span className="error-code-badge">{errorDetails.code.replace(/_/g, ' ')}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="error-message">{error}</div>
+                {errorDetails?.suggestion && (
+                  <div className="error-suggestion">
+                    <span className="error-suggestion-icon">💡</span>
+                    <span>{errorDetails.suggestion}</span>
+                  </div>
+                )}
+                {errorDetails?.failedStage && (
+                  <div className="error-stage-info">
+                    Failed at: <strong>{errorDetails.failedStage.replace(/_/g, ' ')}</strong>
+                  </div>
+                )}
+                {errorDetails?.retryable && lastPrompt && (
+                  <button
+                    className="btn btn-primary btn-retry"
+                    onClick={() => handleCompile(lastPrompt)}
+                    disabled={isCompiling}
+                  >
+                    🔄 Retry Compilation
+                  </button>
+                )}
               </div>
             </div>
           )}

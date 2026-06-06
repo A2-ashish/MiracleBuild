@@ -78,3 +78,9 @@ class CompilationResult(BaseModel):
     assumptions: list[str] = []
     warnings: list[str] = []
     errors: list[str] = []
+    # Structured error info for user-friendly messaging
+    error_code: str | None = None
+    error_message: str | None = None
+    error_suggestion: str | None = None
+    failed_stage: str | None = None
+    retryable: bool = False

@@ -8,6 +8,7 @@ import asyncio
 
 from app.config import config
 from app.pipeline.orchestrator import CompilerOrchestrator
+from app.failure.error_classifier import classify_error
 
 logging.basicConfig(level=config.LOG_LEVEL)
 logger = logging.getLogger(__name__)
@@ -43,6 +44,12 @@ async def compile_app_stream(prompt: str, model: str = None, request: Request = 
                 "duration_ms": data.get("duration_ms"),
                 "tokens": data.get("tokens"),
             }
+            # Include error details if this is a stage error
+            if status == "error":
+                event_data["error_code"] = data.get("error_code")
+                event_data["error_message"] = data.get("error_message")
+                event_data["error_suggestion"] = data.get("error_suggestion")
+                event_data["retryable"] = data.get("retryable", False)
             await queue.put(event_data)
 
         # Setup the orchestrator
@@ -55,10 +62,31 @@ async def compile_app_stream(prompt: str, model: str = None, request: Request = 
         async def run_pipeline():
             try:
                 result = await orchestrator.compile(prompt, callback=stage_callback)
-                await queue.put({"type": "complete", "status": "success", "result": result.model_dump()})
+                result_data = result.model_dump()
+                if result.success:
+                    await queue.put({"type": "complete", "status": "success", "result": result_data})
+                else:
+                    # Pipeline finished but failed — send structured error
+                    await queue.put({
+                        "type": "error",
+                        "message": result.error_message or "Compilation failed",
+                        "error_code": result.error_code,
+                        "error_suggestion": result.error_suggestion,
+                        "failed_stage": result.failed_stage,
+                        "retryable": result.retryable,
+                        "errors": result.errors,
+                        "result": result_data,
+                    })
             except Exception as e:
                 logger.exception("Compilation failed")
-                await queue.put({"type": "error", "message": str(e)})
+                classified = classify_error(e)
+                await queue.put({
+                    "type": "error",
+                    "message": classified.message,
+                    "error_code": classified.code.value,
+                    "error_suggestion": classified.suggestion,
+                    "retryable": classified.retryable,
+                })
             finally:
                 await queue.put(None)  # Sentinel to stop the generator
 

@@ -18,6 +18,7 @@ from app.pipeline.stage3_schemas import SchemaGenerator
 from app.pipeline.stage4_refinement import SchemaRefiner
 from app.pipeline.stage5_validation import ValidationEngine
 from app.failure.handler import FailureHandler
+from app.failure.error_classifier import classify_error, PipelineError
 
 logger = logging.getLogger(__name__)
 
@@ -87,9 +88,10 @@ class CompilerOrchestrator:
             )
             assumptions.extend(a.description for a in intent.assumptions)
         except Exception as exc:
-            errors.append(f"Intent extraction failed: {exc}")
+            classified = classify_error(exc, stage="intent_extraction")
+            errors.append(f"Intent extraction failed: {classified.message}")
             logger.exception("Stage 1 failed")
-            return self._fail(errors, warnings, assumptions, metrics, pipeline_start)
+            return self._fail(errors, warnings, assumptions, metrics, pipeline_start, classified)
 
         # ---- Stage 2: System Design ----
         design = None
@@ -102,9 +104,10 @@ class CompilerOrchestrator:
                 callback,
             )
         except Exception as exc:
-            errors.append(f"System design failed: {exc}")
+            classified = classify_error(exc, stage="system_design")
+            errors.append(f"System design failed: {classified.message}")
             logger.exception("Stage 2 failed")
-            return self._fail(errors, warnings, assumptions, metrics, pipeline_start)
+            return self._fail(errors, warnings, assumptions, metrics, pipeline_start, classified)
 
         # ---- Stage 3: Schema Generation ----
         schemas = None
@@ -117,9 +120,10 @@ class CompilerOrchestrator:
                 callback,
             )
         except Exception as exc:
-            errors.append(f"Schema generation failed: {exc}")
+            classified = classify_error(exc, stage="schema_generation")
+            errors.append(f"Schema generation failed: {classified.message}")
             logger.exception("Stage 3 failed")
-            return self._fail(errors, warnings, assumptions, metrics, pipeline_start)
+            return self._fail(errors, warnings, assumptions, metrics, pipeline_start, classified)
 
         # ---- Stage 4: Refinement ----
         try:
@@ -131,7 +135,8 @@ class CompilerOrchestrator:
                 callback,
             )
         except Exception as exc:
-            warnings.append(f"Refinement failed (non-fatal): {exc}")
+            classified = classify_error(exc, stage="refinement")
+            warnings.append(f"Refinement failed (non-fatal): {classified.message}")
             logger.warning("Stage 4 failed — continuing with unrefined schemas")
 
         # ---- Stage 5: Validation & Repair ----
@@ -160,9 +165,10 @@ class CompilerOrchestrator:
             )
             metrics.validation_checks_total = len(validation_report.checks)
         except Exception as exc:
-            errors.append(f"Validation failed: {exc}")
+            classified = classify_error(exc, stage="validation")
+            errors.append(f"Validation failed: {classified.message}")
             logger.exception("Stage 5 failed")
-            return self._fail(errors, warnings, assumptions, metrics, pipeline_start)
+            return self._fail(errors, warnings, assumptions, metrics, pipeline_start, classified)
 
         # ---- Finalise metrics ----
         metrics.total_duration_ms = (
@@ -211,8 +217,23 @@ class CompilerOrchestrator:
                 break
             except Exception as exc:
                 last_exc = exc
-                logger.warning(f"Stage {name} failed on attempt {attempt + 1}/{max_attempts}: {exc}")
+                classified = classify_error(exc, stage=name)
+                logger.warning(
+                    "Stage %s failed on attempt %d/%d: [%s] %s",
+                    name, attempt + 1, max_attempts,
+                    classified.code.value, classified.message,
+                )
                 if attempt == max_attempts - 1:
+                    # Fire error callback so frontend sees which stage failed & why
+                    if callback:
+                        elapsed_ms = (time.perf_counter() - t0) * 1000
+                        await callback(name, "error", {
+                            "duration_ms": round(elapsed_ms, 1),
+                            "error_code": classified.code.value,
+                            "error_message": classified.message,
+                            "error_suggestion": classified.suggestion,
+                            "retryable": classified.retryable,
+                        })
                     raise exc
 
         elapsed_ms = (time.perf_counter() - t0) * 1000
@@ -244,6 +265,7 @@ class CompilerOrchestrator:
         assumptions: list[str],
         metrics: CompilationMetrics,
         pipeline_start: float,
+        classified_error: Optional[PipelineError] = None,
     ) -> CompilationResult:
         metrics.total_duration_ms = (
             time.perf_counter() - pipeline_start
@@ -256,4 +278,9 @@ class CompilerOrchestrator:
             assumptions=assumptions,
             warnings=warnings,
             errors=errors,
+            error_code=classified_error.code.value if classified_error else None,
+            error_message=classified_error.message if classified_error else None,
+            error_suggestion=classified_error.suggestion if classified_error else None,
+            failed_stage=classified_error.stage if classified_error else None,
+            retryable=classified_error.retryable if classified_error else False,
         )
