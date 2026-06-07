@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import './index.css'
 import PromptInput from './components/PromptInput'
 import PipelineVisualizer from './components/PipelineVisualizer'
@@ -24,12 +24,17 @@ function App() {
   const [error, setError] = useState(null)
   const [errorDetails, setErrorDetails] = useState(null)
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro')
+  const [theme, setTheme] = useState('liquid')
   const [activeOutputTab, setActiveOutputTab] = useState('pipeline')
   const [lastPrompt, setLastPrompt] = useState('')
 
   const updateStage = useCallback((stageId, updates) => {
     setStages(prev => prev.map(s => s.id === stageId ? { ...s, ...updates } : s))
   }, [])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   // Map backend stage names to frontend stage IDs
   const mapStageName = useCallback((backendName) => {
@@ -198,9 +203,13 @@ function App() {
   return (
     <>
       <div className="liquid-bg">
-        <div className="blob blob-1"></div>
-        <div className="blob blob-2"></div>
-        <div className="blob blob-3"></div>
+        {theme === 'liquid' && (
+          <>
+            <div className="blob blob-1"></div>
+            <div className="blob blob-2"></div>
+            <div className="blob blob-3"></div>
+          </>
+        )}
       </div>
       <div className="app">
         <header className="app-header">
@@ -211,7 +220,19 @@ function App() {
         </div>
         <div className="app-header-actions">
           <div className="model-selector">
-            <span className="model-selector-label">Model:</span>
+            <span className="model-selector-label" style={{ marginRight: '8px', fontSize: '14px', fontWeight: '500' }}>Theme:</span>
+            <select
+              className="select"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              style={{ marginRight: '16px' }}
+            >
+              <option value="liquid">Liquid</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          <div className="model-selector">
+            <span className="model-selector-label" style={{ marginRight: '8px', fontSize: '14px', fontWeight: '500' }}>Model:</span>
             <select
               className="select"
               value={selectedModel}
