@@ -104,9 +104,11 @@ class LLMClient:
             config.system_instruction = new_instruction
 
         last_exc: Exception | None = None
-        max_attempts = max(_MAX_RETRIES, len(self.api_keys) + 1)
+        max_key_rotations = len(self.api_keys)
+        rotations_done = 0
+        generic_errors = 0
         
-        for attempt in range(max_attempts):
+        while True:
             try:
                 response = await asyncio.wait_for(
                     self.client.aio.models.generate_content(
@@ -136,26 +138,29 @@ class LLMClient:
                 exc_str = str(exc)
                 if "429" in exc_str or "RESOURCE_EXHAUSTED" in exc_str:
                     logger.warning("Quota exhausted for current key.")
-                    if len(self.api_keys) > 1:
+                    if len(self.api_keys) > 1 and rotations_done < max_key_rotations:
                         self._rotate_key()
+                        rotations_done += 1
                         await asyncio.sleep(0.5)  # Brief pause to avoid hammering
                         continue
                 elif isinstance(exc, asyncio.TimeoutError):
                     logger.warning("LLM call timed out after 180 seconds.")
                         
-                delay = _BASE_DELAY_S * (2 ** attempt)
+                generic_errors += 1
+                if generic_errors > _MAX_RETRIES:
+                    raise RuntimeError(
+                        f"LLM call failed after {_MAX_RETRIES} retries: {last_exc}"
+                    ) from last_exc
+                
+                delay = min(30.0, _BASE_DELAY_S * (2 ** (generic_errors - 1)))
                 logger.warning(
-                    "LLM call attempt %d/%d failed: %s — retrying in %.1fs",
-                    attempt + 1,
-                    max_attempts,
+                    "LLM call generic error %d/%d failed: %s — retrying in %.1fs",
+                    generic_errors,
+                    _MAX_RETRIES,
                     exc,
                     delay,
                 )
                 await asyncio.sleep(delay)
-
-        raise RuntimeError(
-            f"LLM call failed after {max_attempts} retries: {last_exc}"
-        ) from last_exc
 
     # ------------------------------------------------------------------
     # Observability helpers
