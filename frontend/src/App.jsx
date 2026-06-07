@@ -23,7 +23,7 @@ function App() {
   const [isCompiling, setIsCompiling] = useState(false)
   const [error, setError] = useState(null)
   const [errorDetails, setErrorDetails] = useState(null)
-  const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro')
+  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash')
   const [theme, setTheme] = useState('liquid')
   const [activeOutputTab, setActiveOutputTab] = useState('pipeline')
   const [lastPrompt, setLastPrompt] = useState('')
