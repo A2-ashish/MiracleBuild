@@ -109,13 +109,12 @@ class LLMClient:
         for attempt in range(max_attempts):
             try:
                 response = await asyncio.wait_for(
-                    asyncio.to_thread(
-                        self.client.models.generate_content,
+                    self.client.aio.models.generate_content(
                         model=self.model,
                         contents=prompt,
                         config=config,
                     ),
-                    timeout=120.0
+                    timeout=180.0
                 )
 
                 # Track token usage
@@ -142,7 +141,7 @@ class LLMClient:
                         await asyncio.sleep(0.5)  # Brief pause to avoid hammering
                         continue
                 elif isinstance(exc, asyncio.TimeoutError):
-                    logger.warning("LLM call timed out after 120 seconds.")
+                    logger.warning("LLM call timed out after 180 seconds.")
                         
                 delay = _BASE_DELAY_S * (2 ** attempt)
                 logger.warning(
