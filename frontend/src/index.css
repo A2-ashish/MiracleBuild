@@ -2,48 +2,48 @@
 
 /* ===== Design System Tokens ===== */
 :root {
-  /* Colors - Apple Minimalist Theme */
-  --color-bg-primary: #f5f5f7;
-  --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #f2f2f2;
-  --color-bg-elevated: #ffffff;
-  --color-bg-glass: rgba(255, 255, 255, 0.7);
-  --color-bg-glass-hover: rgba(255, 255, 255, 0.85);
-  --color-bg-glass-active: rgba(245, 245, 247, 0.9);
+  /* Colors - Water Glass Theme */
+  --color-bg-primary: #020813;
+  --color-bg-secondary: rgba(255, 255, 255, 0.03);
+  --color-bg-tertiary: rgba(255, 255, 255, 0.06);
+  --color-bg-elevated: rgba(255, 255, 255, 0.1);
+  --color-bg-glass: rgba(255, 255, 255, 0.05);
+  --color-bg-glass-hover: rgba(255, 255, 255, 0.08);
+  --color-bg-glass-active: rgba(255, 255, 255, 0.12);
   
   /* Accent Colors */
-  --color-primary: #0071e3;
-  --color-primary-light: #4c9bee;
-  --color-primary-dark: #005bb5;
-  --color-primary-glow: rgba(0, 113, 227, 0.15);
+  --color-primary: #0ea5e9;
+  --color-primary-light: #38bdf8;
+  --color-primary-dark: #0284c7;
+  --color-primary-glow: rgba(14, 165, 233, 0.3);
   
-  --color-secondary: #0071e3;
-  --color-secondary-light: #4c9bee;
-  --color-secondary-dark: #005bb5;
+  --color-secondary: #22d3ee;
+  --color-secondary-light: #67e8f9;
+  --color-secondary-dark: #0891b2;
   
-  --color-accent: #ff3b30;
-  --color-accent-light: #ff6961;
+  --color-accent: #3b82f6;
+  --color-accent-light: #60a5fa;
   
   /* Status Colors */
-  --color-success: #34c759;
-  --color-success-bg: rgba(52, 199, 89, 0.1);
-  --color-warning: #ff9f0a;
-  --color-warning-bg: rgba(255, 159, 10, 0.1);
-  --color-error: #ff3b30;
-  --color-error-bg: rgba(255, 59, 48, 0.1);
-  --color-info: #0071e3;
-  --color-info-bg: rgba(0, 113, 227, 0.1);
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
+  --color-error: #ef4444;
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.1);
   
   /* Text Colors */
-  --color-text-primary: #1d1d1f;
-  --color-text-secondary: #86868b;
-  --color-text-tertiary: #a1a1a6;
-  --color-text-inverse: #ffffff;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #64748b;
+  --color-text-inverse: #0f172a;
   
   /* Border */
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-hover: rgba(0, 0, 0, 0.15);
-  --color-border-active: rgba(0, 113, 227, 0.5);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(255, 255, 255, 0.2);
+  --color-border-active: rgba(14, 165, 233, 0.6);
   
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -152,6 +152,64 @@ a:hover {
   background: var(--color-border-hover);
 }
 
+/* ===== Liquid Background ===== */
+.liquid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: var(--color-bg-primary);
+}
+
+.blob {
+  position: absolute;
+  filter: blur(80px);
+  opacity: 0.6;
+  border-radius: 50%;
+  animation: float 20s infinite ease-in-out alternate;
+}
+
+.blob-1 {
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, var(--color-primary-dark) 0%, transparent 70%);
+  animation-duration: 25s;
+}
+
+.blob-2 {
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, var(--color-secondary-dark) 0%, transparent 70%);
+  animation-duration: 22s;
+  animation-delay: -5s;
+}
+
+.blob-3 {
+  top: 40%;
+  left: 30%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.3) 0%, transparent 70%);
+  animation-duration: 28s;
+  animation-delay: -12s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(5%, 10%) scale(1.1);
+  }
+  100% {
+    transform: translate(-5%, 5%) scale(0.9);
+  }
+}
+
 /* ===== App Layout ===== */
 .app {
   display: flex;
@@ -164,10 +222,10 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-8);
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
@@ -234,17 +292,50 @@ a:hover {
   }
 }
 
-/* ===== Apple Card ===== */
+/* ===== Glass Card ===== */
 .glass-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.04);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   transition: all var(--transition-base);
+  overflow: hidden;
+  position: relative;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shine 10s infinite;
+  pointer-events: none;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
 }
 
 .glass-card:hover {
-  box-shadow: 0 10px 15px rgba(0,0,0,0.03), 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 .glass-card-header {
@@ -382,9 +473,10 @@ a:hover {
 
 .select {
   appearance: none;
-  background: var(--color-bg-elevated);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
   color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
   font-family: var(--font-sans);
@@ -419,8 +511,10 @@ a:hover {
   min-height: 180px;
   max-height: 400px;
   padding: var(--space-5);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-lg);
   color: var(--color-text-primary);
   font-family: var(--font-sans);

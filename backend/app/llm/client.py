@@ -52,7 +52,7 @@ class LLMClient:
         old_idx = self.current_key_idx
         self.current_key_idx = (self.current_key_idx + 1) % len(self.api_keys)
         self.client = genai.Client(api_key=self.api_keys[self.current_key_idx])
-        logger.warning(f"Rotated API key from index {old_idx} to {self.current_key_idx}")
+        logger.debug(f"Rotated API key from index {old_idx} to {self.current_key_idx}")
 
     # ------------------------------------------------------------------
     # Core generation
@@ -79,6 +79,9 @@ class LLMClient:
             The raw text emitted by the model (JSON string when
             ``response_schema`` is supplied).
         """
+        if len(self.api_keys) > 1:
+            self._rotate_key()
+
         config = types.GenerateContentConfig(
             temperature=self.temperature,
             system_instruction=system_instruction if system_instruction else None,

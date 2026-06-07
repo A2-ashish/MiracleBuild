@@ -196,8 +196,14 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
+    <>
+      <div className="liquid-bg">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+      </div>
+      <div className="app">
+        <header className="app-header">
         <div className="app-logo">
           <div className="app-logo-icon">⚡</div>
           <span className="app-logo-text">Miracle Build</span>
@@ -379,6 +385,7 @@ function App() {
         </div>
       </main>
     </div>
+  </>
   )
 }
 
